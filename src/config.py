@@ -17,7 +17,7 @@ class Config:
         return value
 
     def get(self, key):
-        self.get_env(key)
+        return self.get_env(key)
 
 
 def construct_config() -> Config:
