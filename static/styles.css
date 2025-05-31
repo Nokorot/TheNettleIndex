@@ -1,0 +1,527 @@
+
+/* This should remove the scroll-bar. At least in chrome */
+.element::-webkit-scrollbar {
+    display: none;
+}
+/* For IE, Edge, and Firefox 64+ */
+.element {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0px;
+    background-color: #d9ead3;
+    overflow: auto;
+}
+
+.page-container {
+    margin: 20px;
+}
+
+/* .container-wrapper {
+    text-align: center;
+    width:100%;
+} */
+
+.container {
+    text-align: center;
+    display: flex;
+    flex: auto;
+    flex-wrap:wrap;
+    justify-content: start;
+  /* text-align: -webkit-center; */
+    border: 1px solid #ccc;
+    /* padding: 10px; */
+}
+
+.header {
+  overflow:auto;
+  justify-content:space-around;
+  display:flex;
+  flex-wrap:wrap;
+  background: #D8B9A4;
+  padding:0px;
+}
+
+.header-menu {
+    float: right;
+    height:100%;
+}
+
+.header-title {
+    position: relative;
+    top: 20px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+form {
+  display:table;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.container input {
+    border: 1px solid;
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+
+.books-list {
+    padding: 10px;
+}
+
+.button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 15px;
+    /* border: none; */
+    cursor: pointer;
+    margin: 4px;
+    /* padding: 15px 25px; */
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+
+.button:hover {
+    background-color: #45a049;
+}
+
+
+/** From initial.css **/
+img.center {
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+}
+img.header-logo{
+    height:80px;
+}
+.book-img {
+    width:250px;
+    height:auto;
+}
+
+/** **/
+.toggle-dark-mode {
+    /* position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 9999; */
+    margin-top: 30px;
+}
+
+.new-data-instance-button {
+    background-color: #199319;
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    border-radius: 8px;
+}
+.new-data-instance-button:hover {
+    background-color: #223094;
+}
+
+img.user-icon {
+  height: 100%;
+  border-radius: 50%;
+}
+
+.list-item {
+  /* Set background color for each list item */
+  background-color: #f9f9f9;
+  /* Set border, padding, margin, and other styles */
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin:10px;
+  flex: auto;
+  /* Add additional styles as needed */
+}
+
+.delete-button, .download-button {
+    background-color: #D7BBF5;
+    color: white;
+    position: relative;
+    padding:5px;
+}
+.delete-button:hover, .download-button:hover {
+    background-color: #D7BBF5;
+}
+
+
+
+.logout-button{
+    background-color: #f35e28;
+    color: white;
+    position: relative;
+    /* left: 10px;
+    top: 10px; */
+}
+.logout-button:hover{
+    background-color: rgb(4, 32, 50);
+}
+.login-button{
+    background-color: #17f783;
+    color: white;
+
+    margin-top: 22px;
+}
+
+.login-button:hover{
+    background-color: rgb(239, 245, 249);
+}
+.back-button{
+    position:relative;
+    top:10px;
+    left:10px;
+    background-color:#17f783
+}
+.form-table {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Added CSS styles for input field alignment */
+.form-row {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    /* margin-bottom: 10px; */
+    vertical-align: middle;
+}
+
+.form-row .label {
+    margin-right: 10px;
+}
+
+.form-row p {
+    margin: 2px;
+}
+
+
+.form-row input {
+    font-size: 18px;
+    height: 30px;
+    flex-grow: 1;
+    width: 100%;
+    vertical-align: middle;
+}
+
+input[type="checkbox"] {
+    width: 30px;
+    height: 30px;
+}
+
+
+.form-fields-group {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-top: 20px;
+    vertical-align: middle;
+
+}
+
+.form-fields-group h2 {
+    color: #333;
+    font-size: 18px;
+    margin-top: 0;
+}
+
+.form-fields-group p {
+    color: #666;
+}
+
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+
+
+
+/* The container must be positioned relative: */
+.custom-select {
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none; /*hide original SELECT element: */
+}
+
+.select-selected {
+  background-color: DodgerBlue;
+}
+
+/* Style the arrow inside the select element: */
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/* Point the arrow upwards when the select box is open (active): */
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+/* style the items (options), including the selected item: */
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+
+/* Style items (options): */
+.select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+/* Hide the items when the select box is closed: */
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+.header .dropdown-user {
+    margin: 5px;
+    padding: 5px;
+    float: right;
+    display: inline-block;
+    height: 70px;
+}
+
+.dropdown-user .dropdown-content {
+  right: 10px;
+}
+
+.hidden .dropdown-content {
+  display: none;
+}
+
+.hidden .collapsible-content {
+  display: none;
+}
+
+.dropdown-content {
+  border-radius: 10px;
+  position: absolute;
+  background-color: #c94d6c;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Pagination */
+.pagination, .pagination li {
+    display: inline-block;
+}
+
+#pagination {
+    text-align: right;
+}
+
+.pagination {
+    line-height: 1rem;
+    list-style: none;
+    margin-top: 20px;
+    padding: 0 0px 0 0;
+    vertical-align: top;
+}
+
+.pagination .ellipsis span {
+    -webkit-touch-callout: none;
+    border: none;
+    cursor: default;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.pagination a , .pagination span {
+    border: none;
+    color: #fff;
+    display: inline-block;
+    height: 2.75rem;
+    line-height: 1rem;
+    width: 2.1rem;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+}
+
+.pagination li.page-active a {
+    background: #3c86c6;
+    color: #fff;
+}
+
+
+
+
+
+
+
+.forum-container {
+  max-width: 800px;
+  margin: auto;
+}
+
+
+
+
+.entry {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.entry-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.entry-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.entry-text {
+  flex: 1;
+}
+
+.entry-meta {
+  font-size: 0.9em;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.entry-content {
+  font-size: 1em;
+  color: #444;
+}
+
+.entry a {
+  text-decoration: none;
+  color: #007BFF;
+}
+
+.entry a:hover {
+  text-decoration: underline;
+}
+
+
+.entry-image img {
+  max-width: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+}

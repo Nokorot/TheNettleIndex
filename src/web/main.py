@@ -1,3 +1,5 @@
+from flask import render_template, request, send_file, url_for
+
 from .. import NettleApp
 
 
@@ -9,18 +11,47 @@ def route(app: NettleApp):
     @flask_app.route("/")
     def home():
         qfilter = {}
+        entries = []
 
-        reply = "<html>"
         for c in coln.find(qfilter):
-            name = c.get("name")
 
-            if name is None:
-                continue
-            reply = "<tr>Name: %s</tr>" % name
+            id = str(c.get("_id"))
+            entries.append(
+                {
+                    "id": id,
+                    "name": c.get("name"),
+                    "description": c.get("description"),
+                    "owner": "Alice",
+                    "image_url": url_for("entry_icon", entry_id=id),
+                    "time_added": c.get("added_timestamp"),
+                }
+            )
 
-        reply += "</html>"
-        return reply
-        # return render_template('home.html')
+        from datetime import datetime, timedelta
+
+        for i in range(100):
+            entries.append(
+                {
+                    "id": i,
+                    "name": "Object nr. %d" % i,
+                    "description": f"This is the {i}'th generated example entry",
+                    "owner": "Name nr. %s" % i,
+                    "image_url": url_for("entry_icon", entry_id=i),
+                    "time_added": (
+                        datetime.now() - timedelta(hours=i * 10)
+                    ).timestamp(),
+                }
+            )
+
+        return render_template("main.html", entries=entries)
+
+    @flask_app.route("/media/entry-icon", methods=["GET"])
+    def entry_icon():
+        entry_id = request.args.get("entry_id")
+
+        path = "static/imgs/logo.png"
+
+        return send_file(path, "image/png")
 
     @flask_app.route("/test", methods=["GET", "POST"])
     def test():

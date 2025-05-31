@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset = "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="{{url_for('static', filename='imgs/Logo_mini.svg')}}">
+
+    <!--icon code-->
+    <script src="https://kit.fontawesome.com/70a51386c2.js" crossorigin="anonymous"></script>
+    {# <script src="{{ url_for('static', filename='scripts.js') }}"></script> #}
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles_dark.css') }}"> -->
+    <!-- icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+{# 
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='initial.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='slim_screen.css')}}">
+ #}
+
+{% block head %}
+{% endblock %}
+</head>
+<body>
+<!-- <body class="dark-mode"> -->
+    <!-- Rounded switch -->
+    <div class="header">
+
+    <a href="{{ url_for('home') }}">
+      <img class="header-logo" style="padding:10px"
+         src="{{url_for('static', filename='imgs/Logo_wide_1.svg')}}"
+         alt="LOGO">
+    </a>
+    <h1>{%block title%}THE TITLE{%endblock title%}</h1>
+    <!-- logout button -->
+    <div class="header-menu">
+    {#  Dark mode toggle
+
+      <label class="toggle-dark-mode switch">
+      <input type="checkbox" id="dark-mode-switch">
+      <span class="slider round"></span>
+    </label> #}
+
+    {% if g.user %}
+        <div class="hidden dropdown dropdown-user">
+          <img class="dropbtn user-icon" src="{{ g.user['userinfo']['picture'] }}">
+          <div id="myDropdown" class="dropdown-content">
+            <a href="{{url_for('user_data.set_kindle_address')}}" class = 'button logout-button fa'>Set Kindle Email</a>
+            <a href=" {{url_for('logout')}} " class = 'button logout-button fa'>LOGOUT</a>
+          </div>
+        </div>
+    {% else %}
+    {# <a href=" {{url_for('login')}}" class = 'button login-button fa fa-person-through-window'> LOGIN </a> #}
+    {% endif %}
+    </div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class = 'flashes'>
+                {% for message in messages %}
+                    <li>{{message}}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div class="page-container">
+{% block body %}
+{% endblock %}
+    </div>
+</body>
+{# <script src="{{url_for('static', filename='dark_mode.js')}}"></script> #}
+{# <script src="{{url_for('static', filename='script-final.js')}}"></script> #}
+</html>

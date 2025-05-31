@@ -1,0 +1,39 @@
+{% extends 'header.html' %}
+
+{% block head %} 
+<title>Books</title>
+{% endblock %} 
+
+{%block title%}List of entries{%endblock title%}
+
+{% block body %}
+  {# <div style="text-align: center;">
+  <a href="{{ url_for('books.new_book') }}" class="new-data-instance-button fa fa-book-medical"> Add Book</a>
+  </div> #}
+
+<div class="forum-container">
+  {% for entry in entries %}
+  <div class="entry">
+    <div class="entry-body">
+      <div class="entry-text">
+        <div class="entry-title">
+          <a href="/entry/{{ entry.id }}">{{ entry.name }}</a>
+        </div>
+        <div class="entry-meta">
+          Posted by <strong>{{ entry.owner }}</strong> on {{ entry.time_added | pretty_time }}
+        </div>
+        <div class="entry-content">
+          {{ entry.description }}
+        </div>
+      </div>
+      {% if entry.image_url %}
+      <div class="entry-image">
+        <img src="{{ entry.image_url }}" alt="Image for {{ entry.name }}">
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
