@@ -7,11 +7,6 @@ app = NettleApp()
 flask_app = app.flask_app
 
 
-# Ensure the cache dictionary exists
-# if not os.path.exists('./cache'):
-#     os.makedirs("./cache")
-
-
 UPLOAD_FOLDER = os.path.join(flask_app.root_path, "media", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ICON_FOLDER = os.path.join(flask_app.root_path, "media", "entry_icons")

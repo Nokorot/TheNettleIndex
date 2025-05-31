@@ -19,7 +19,7 @@ class MongoConnection:
         try:
             self.client = pymongo.MongoClient(self.URI)
             self.mongodb = self.client[self.DB]
-            self.app.logger.INFO("connected")
+            self.app.logger.INFO("MongoDB connected")
         except ConfigurationError:
             self.app.logger.ERROR(
                 "An Invalid URI host error was received.\n"

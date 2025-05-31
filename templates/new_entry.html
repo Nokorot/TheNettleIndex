@@ -7,7 +7,10 @@
 {%block title%}Add Entry{%endblock title%}
 
 {% block body %}
-<div style="text-align: center; margin-bottom: 20px;">
+
+<div class="formbox-container">
+
+<div class="form-box"</div>
 
 <h2>Add New Entry</h2>
 <form action="{{ url_for('submit_entry') }}" method="post" enctype="multipart/form-data">
@@ -20,11 +23,11 @@
   <label for="owner">Your Name:</label><br>
   <input type="text" id="owner" name="owner" required><br><br>
 
-  <label for="image">Upload Icon (optional):</label><br>
-  <input type="file" id="image" name="image" accept="image/*"><br><br>
+  <label for="image">Take or Upload a photo:</label><br>
+  <input type="file" id="image" name="image" accept="image/*" capture="environment"><br><br>
 
   <button type="submit">Submit Entry</button>
 </form>
 
-</div>
+</div></div>
 {% endblock %}
