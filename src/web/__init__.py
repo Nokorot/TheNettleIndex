@@ -1,11 +1,8 @@
-from .. import Config, LoggerContext, NettleApp
+from .. import NettleApp
 
 
 def route(app: NettleApp):
-    from .utils import route
+    from . import main, utils
 
-    route(app)
-
-    from .main import route
-
-    route(app)
+    utils.route(app)
+    main.route(app)

@@ -8,10 +8,11 @@ LocType = Optional[inspect.FrameInfo]
 class LoggerContext:
     def __init__(self, name: str):
         self.name = name
+        self.parent = None
         self.context_str = "[%s]" % self.name
 
     def sub_contex(self, name: str):
-        logger = getLogger(name)
+        logger = LoggerContext(name)
         logger.parent = self
         logger.context_str = self.context_str + logger.context_str
         return logger

@@ -1,25 +1,29 @@
 import os
+from typing import Any, Optional
 
-from dotenv import load_dotenv  # type: ignore
+from dotenv import load_dotenv
 
-# from .logging import getLogger
+from src.logging import LoggerContext
 
 
 class Config:
-    def __init__(self):
-        pass
+    UPLOAD_FOLDER: Optional[str] = None
+    ICON_FOLDER: Optional[str] = None
 
-    def get_env(self, key, default=None):
+    def __init__(self, logger):
+        self.logger = logger.sub_contex("config")
+
+    def get_env(self, key: str, default=None):
         value = os.environ.get(key, default)
         if not value:
-            logger.ERROR('Environment variable "%s" is not declared', key)
+            self.logger.ERROR('Environment variable "%s" is not declared', key)
 
         return value
 
-    def get(self, key):
+    def get(self, key: str) -> Any:
         return self.get_env(key)
 
 
-def construct_config() -> Config:
+def construct_config(logger: LoggerContext) -> Config:
     load_dotenv(dotenv_path=".env")
-    return Config()
+    return Config(logger)

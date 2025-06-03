@@ -3,26 +3,19 @@ from flask import Flask
 
 class NettleApp:
     def __init__(self):
-
-        from .logging import LoggerContext
-
-        self.logger = LoggerContext("")
-
+        from . import web
         from .config import Config, construct_config
+        from .logging import LoggerContext
+        from .mongodb import MongoConnection
 
-        self.config: Config = construct_config()
-
+        self.logger = logger = LoggerContext("")
+        self.config: Config = construct_config(logger)
         self.flask_app = Flask("TheNettleApp")
 
         # The secret_key is used for session encryption
         self.flask_app.secret_key = self.config.get("APP_SECRET_KEY")
 
-        from .mongodb import MongoConnection
-
         self.mongo_cx = MongoConnection(self)
         self.mongo_cx.connect()
 
-        from .web import route
-
-        route(self)
-        # self.flask_app: Flask = construct_flask_app(self)
+        web.route(self)
