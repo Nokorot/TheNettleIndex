@@ -1,4 +1,3 @@
-import os
 import sys
 from typing import Optional
 
@@ -11,14 +10,21 @@ from .nettle_app import NettleApp
 class MongoConnection:
     def __init__(self, app: NettleApp):
         self.app = app
-        self.URI = app.config.get("MONGODB_URI")
-        self.DB = app.config.get("MONGODB_DB")
+        self.secrets: Optional[dict] = app.config.secrets.get("MongoDB")
+        if self.secrets is None:
+            app.logger.ERROR("Missing MongoDB secrets")
+            exit(1)
+        self.uri: str = self.secrets.get("URI")
+        self.db_name = self.secrets.get("db_name")
+
+        self.client: Optional[pymongo.MongoClient] = None
+        self.mongodb = None
+        self.entries_coln = None
 
     def connect(self):
-
         try:
-            self.client = pymongo.MongoClient(self.URI)
-            self.mongodb = self.client[self.DB]
+            self.client = pymongo.MongoClient(self.uri)
+            self.mongodb = self.client[self.db_name]
             self.app.logger.INFO("MongoDB connected")
         except ConfigurationError:
             self.app.logger.ERROR(

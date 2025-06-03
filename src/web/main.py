@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from datetime import datetime, timedelta
 
 from flask import make_response, redirect, render_template, request, send_file, url_for
@@ -23,6 +24,13 @@ def route(app: NettleApp):
     flask_app = app.flask_app
 
     coln = app.mongo_cx.entries_coln
+    if coln is None:
+        app.logger.ERROR("MongoDB collection is None")
+        sys.exit(1)
+
+    FOLDERS: dict = app.config["FOLDERS"]
+    ICON_FOLDER = FOLDERS["ICON"]
+    UPLOAD_FOLDER = FOLDERS["UPLOAD"]
 
     @flask_app.route("/")
     def home():
@@ -65,7 +73,8 @@ def route(app: NettleApp):
         entry_id = request.args.get("entry_id")
 
         filename = f"{entry_id}.img"
-        file_path = os.path.join(app.config.ICON_FOLDER, filename)
+
+        file_path = os.path.join(ICON_FOLDER, filename)
 
         if not os.path.exists(file_path):
             return "File not found", 404
@@ -109,7 +118,7 @@ def route(app: NettleApp):
         if file and allowed_file(file.filename):
             # Make filename safe and unique
             image_filename = f"{time}_{secure_filename(file.filename)}"
-            upload_path = os.path.join(app.config.UPLOAD_FOLDER, image_filename)
+            upload_path = os.path.join(UPLOAD_FOLDER, image_filename)
 
             print(f"File '{file.filename}' uploaded to '{upload_path}'")
 
@@ -121,7 +130,7 @@ def route(app: NettleApp):
 
         if upload_path:
             filename = f"{entry_id}.img"
-            image_path = os.path.join(app.config.ICON_FOLDER, filename)
+            image_path = os.path.join(ICON_FOLDER, filename)
 
             print(f"'{upload_path}' moved to 'image_path'")
             shutil.move(upload_path, image_path)

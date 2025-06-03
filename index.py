@@ -1,23 +1,18 @@
+import logging
 import os
-import sys
 
 from src import NettleApp
 
-app = NettleApp()
+app = NettleApp("config.toml", ".secrets.toml")
 flask_app = app.flask_app
 
 
-UPLOAD_FOLDER = os.path.join(flask_app.root_path, "media", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-ICON_FOLDER = os.path.join(flask_app.root_path, "media", "entry_icons")
-os.makedirs(ICON_FOLDER, exist_ok=True)
-
-app.config.UPLOAD_FOLDER = UPLOAD_FOLDER
-app.config.ICON_FOLDER = ICON_FOLDER
-
-import logging
+## Ensure that all the necessary folders are available
+for name, path in app.config.get("FOLDERS").items():
+    os.makedirs(path, exist_ok=True)
 
 
+## Suppress image requests
 class SuppressMedia304(logging.Filter):
     def filter(self, record):
         msg = record.getMessage()

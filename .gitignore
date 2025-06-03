@@ -1,6 +1,6 @@
 ## Project Specific
-
 media
+.secrets.toml
 
 ### Python ###
 __pycache__/

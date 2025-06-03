@@ -1,0 +1,7 @@
+
+PORT=5000
+
+[FOLDERS]
+UPLOAD="./media/uploads"
+ICON="./media/entry_icons"
+
