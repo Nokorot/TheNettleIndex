@@ -40,6 +40,7 @@ imgur = pyimgur.Imgur(
 
 
 def imgur_upload_image(str_id: str, title: str) -> Optional[str]:
+
     logger.INFO(f"Uploading image for {str_id}")
 
     image_path = os.path.join(ICON_FOLDER, f"{str_id}.img")
@@ -47,6 +48,17 @@ def imgur_upload_image(str_id: str, title: str) -> Optional[str]:
         logger.INFO(f"Image path {image_path} does not exist")
 
         return None
+
+    from PIL import Image
+
+    with open(image_path, "rb") as fp:
+        im = Image.open(fp)
+        im.thumbnail((1000, 1000))
+
+        out_path = image_path + "_thumb.jpg"
+        im.save(out_path)
+
+        image_path = out_path
 
     imgur_image = imgur.upload_image(image_path, title=title)
     if imgur_image is None:
@@ -93,10 +105,14 @@ for c in entries_coln.find(qfilter):
 
     if version is None:
 
-        new_url = imgur_upload_image(str_id, c.get("name") or "")
+        try:
 
-        if new_url is not None:
-            entries_coln.update_one(
-                {"_id": _id},
-                {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
-            )
+            new_url = imgur_upload_image(str_id, c.get("name") or "")
+
+            if new_url is not None:
+                entries_coln.update_one(
+                    {"_id": _id},
+                    {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
+                )
+        except Exception:
+            pass
