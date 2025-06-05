@@ -35,7 +35,7 @@ class Config:
         self.cnf = read_toml(cnf_file)
 
         self.secrets_file = secrets_file
-        self.secrets = read_toml(secrets_file)
+        self.secrets: dict = read_toml(secrets_file)
 
         self.logger = logger.sub_contex("config")
 

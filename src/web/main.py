@@ -1,27 +1,27 @@
 import os
-import shutil
 import sys
-from datetime import datetime, timedelta
+from datetime import UTC, datetime
+from typing import Optional
 
 from flask import make_response, redirect, render_template, request, send_file, url_for
+from werkzeug.datastructures import FileStorage
 from werkzeug.http import http_date
 from werkzeug.utils import secure_filename
 
 from .. import NettleApp
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg"}
+ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "svg"]  # , "webp"
+DB_ENTRY_VERSION = "0.2.0"
 
 
 def allowed_file(filename):
-    basename, extension = os.path.splitext(filename)
-
-    print(filename, extension)
-
+    extension = os.path.splitext(filename)[1]
     return len(extension) > 0 and extension[1:] in ALLOWED_EXTENSIONS
 
 
 def route(app: NettleApp):
     flask_app = app.flask_app
+    logger = app.logger.sub_contex("web")
 
     coln = app.mongo_cx.entries_coln
     if coln is None:
@@ -32,37 +32,46 @@ def route(app: NettleApp):
     ICON_FOLDER = FOLDERS["ICON"]
     UPLOAD_FOLDER = FOLDERS["UPLOAD"]
 
+    def imgur_upload_image(str_id: str, title: str) -> str:
+        logger.INFO(f"Uploading image for {str_id}")
+
+        image_path = os.path.join(ICON_FOLDER, f"{str_id}.img")
+        imgur_image = app.imgur.upload_image(image_path, title=title)
+
+        image_url = imgur_image.link
+
+        logger.INFO(f"Image '{image_path}' uploaded to '{image_url}'")
+
+        return image_url
+
     @flask_app.route("/")
     def home():
         qfilter = {}
         entries = []
 
         for c in coln.find(qfilter):
-            id = str(c.get("_id"))
+            _id = c.get("_id")
+            str_id = str(_id)
+
+            version = c.get("version")
+
+            if version is None:
+                new_url = imgur_upload_image(str_id, c.get("name") or "")
+                coln.update_one(
+                    {"_id": _id},
+                    {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
+                )
+
+            image_url = c.get("icon_url")
 
             entries.append(
                 {
-                    "id": id,
+                    "id": str_id,
                     "name": c.get("name"),
                     "description": c.get("description"),
-                    "owner": "Alice",
-                    "image_url": url_for("entry_icon", entry_id=id),
+                    "owner": c.get("owner"),
+                    "image_url": image_url,
                     "time_added": c.get("added_timestamp"),
-                }
-            )
-
-        for i in range(100):
-            id = i + 1
-            entries.append(
-                {
-                    "id": id,
-                    "name": "Object nr. %d" % id,
-                    "description": f"This is the {id}'th generated example entry",
-                    "owner": "Name nr. %s" % id,
-                    "image_url": url_for("entry_icon", entry_id=id),
-                    "time_added": (
-                        datetime.now() - timedelta(hours=i * 10)
-                    ).timestamp(),
                 }
             )
 
@@ -80,7 +89,7 @@ def route(app: NettleApp):
             return "File not found", 404
 
         # Get last modified time of the file
-        last_modified = datetime.utcfromtimestamp(os.path.getmtime(file_path))
+        last_modified = datetime.fromtimestamp(os.path.getmtime(file_path), UTC)
 
         # Compare with client's If-Modified-Since header
         if_modified_since = request.headers.get("If-Modified-Since")
@@ -108,14 +117,27 @@ def route(app: NettleApp):
     @flask_app.route("/submit_entry", methods=["POST"])
     def submit_entry():
         entry = {}
+        entry["version"] = DB_ENTRY_VERSION
+
         time = entry["timestamp"] = str(datetime.now().timestamp())
         entry["name"] = request.form.get("name")
         entry["description"] = request.form.get("description")
         entry["owner"] = request.form.get("owner")
-        file = request.files.get("image")
+        file: Optional[FileStorage] = request.files.get("image")
 
         upload_path = None
-        if file and allowed_file(file.filename):
+        if file is None:
+            logger.WARNING("Warning: There was no image uploaded")
+        elif not allowed_file(file.filename):
+            assert file.filename is not None
+            extension = os.path.splitext(file.filename)[1][1:]
+
+            logger.WARNING(
+                f"Warning: The uploaded image has an invalid extension [{extension}]"
+            )
+        else:
+            assert file.filename is not None
+
             # Make filename safe and unique
             image_filename = f"{time}_{secure_filename(file.filename)}"
             upload_path = os.path.join(UPLOAD_FOLDER, image_filename)
@@ -124,22 +146,17 @@ def route(app: NettleApp):
 
             file.save(upload_path)
 
-        restult = coln.insert_one(entry)
-        entry_id = str(restult.inserted_id)
-        print("Id:" + entry_id)
-
-        if upload_path:
-            filename = f"{entry_id}.img"
-            image_path = os.path.join(ICON_FOLDER, filename)
-
-            print(f"'{upload_path}' moved to 'image_path'")
-            shutil.move(upload_path, image_path)
-
             # Maybe on a different thread :
-            ## TODO: Hash the file and downsize if needed
+            # TODO: Hash the file and downsize if needed
             #    (downsizing could also be done client-side)
 
-            ##  TODO: app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2 MB limit
+            # TODO: app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2 MB limit
+
+            imgur_image = app.imgur.upload_image(upload_path, title=entry["name"])
+            entry["icon_url"] = imgur_image.link
+
+        restult = coln.insert_one(entry)
+        _ = restult
 
         return redirect(url_for("home"))
 
