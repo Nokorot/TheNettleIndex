@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Optional
 
 from flask import make_response, redirect, render_template, request, send_file, url_for
@@ -98,7 +98,7 @@ def route(app: NettleApp):
             return "File not found", 404
 
         # Get last modified time of the file
-        last_modified = datetime.fromtimestamp(os.path.getmtime(file_path), UTC)
+        last_modified = datetime.fromtimestamp(os.path.getmtime(file_path))
 
         # Compare with client's If-Modified-Since header
         if_modified_since = request.headers.get("If-Modified-Since")
