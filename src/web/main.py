@@ -32,14 +32,21 @@ def route(app: NettleApp):
     ICON_FOLDER = FOLDERS["ICON"]
     UPLOAD_FOLDER = FOLDERS["UPLOAD"]
 
-    def imgur_upload_image(str_id: str, title: str) -> str:
+    def imgur_upload_image(str_id: str, title: str) -> Optional[str]:
         logger.INFO(f"Uploading image for {str_id}")
 
         image_path = os.path.join(ICON_FOLDER, f"{str_id}.img")
+        if not os.path.exists(image_path):
+            logger.INFO(f"Image path {image_path} does not exist")
+
+            return None
+
         imgur_image = app.imgur.upload_image(image_path, title=title)
+        if imgur_image is None:
+            logger.INFO("Failed to upload image")
+            return None
 
         image_url = imgur_image.link
-
         logger.INFO(f"Image '{image_path}' uploaded to '{image_url}'")
 
         return image_url
@@ -57,10 +64,12 @@ def route(app: NettleApp):
 
             if version is None:
                 new_url = imgur_upload_image(str_id, c.get("name") or "")
-                coln.update_one(
-                    {"_id": _id},
-                    {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
-                )
+
+                if new_url is not None:
+                    coln.update_one(
+                        {"_id": _id},
+                        {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
+                    )
 
             image_url = c.get("icon_url")
 
