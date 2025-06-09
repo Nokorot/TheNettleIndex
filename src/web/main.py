@@ -1,20 +1,12 @@
 import os
 import sys
+import threading
 from datetime import datetime
 from typing import Optional
 
 from bson import ObjectId
-from flask import (
-    abort,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    send_file,
-    url_for,
-)
+from flask import abort, redirect, render_template, request, url_for
 from werkzeug.datastructures import FileStorage
-from werkzeug.http import http_date
 from werkzeug.utils import secure_filename
 
 from .. import NettleApp
@@ -150,26 +142,14 @@ def route(app: NettleApp):
         entry["version"] = DB_ENTRY_VERSION
 
         entry["timestamp"] = str(datetime.now().timestamp())
-        name = entry["name"] = request.form.get("name")
+        entry["name"] = request.form.get("name")
         entry["description"] = request.form.get("description")
         entry["owner"] = request.form.get("owner")
         file: Optional[FileStorage] = request.files.get("image")
 
-        upload_path = None
-        if file is None:
-            logger.WARNING("Warning: There was no image uploaded")
-        elif not allowed_file(file.filename):
-            assert file.filename is not None
-            extension = os.path.splitext(file.filename)[1][1:]
-
-            logger.WARNING(
-                f"Warning: The uploaded image has an invalid extension [{extension}]"
-            )
-        else:
-            entry["icon_url"] = image_upload_image(file, title=name)
-
-        restult = coln.insert_one(entry)
-        _ = restult
+        threading.Thread(
+            target=handle_entry_submittion, args=(entry, file), daemon=True
+        ).start()
 
         return redirect(url_for("home"))
 

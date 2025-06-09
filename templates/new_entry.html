@@ -13,21 +13,51 @@
 <div class="form-box"</div>
 
 <h2>Add New Entry</h2>
-<form action="{{ url_for('submit_entry') }}" method="post" enctype="multipart/form-data">
-  <label for="name">Title:</label><br>
-  <input type="text" id="name" name="name" required><br><br>
 
-  <label for="description">Description:</label><br>
-  <textarea id="description" name="description" rows="4" required></textarea><br><br>
+{#action="{{ url_for('submit_entry') }}" #}
 
-  <label for="owner">Your Name:</label><br>
-  <input type="text" id="owner" name="owner" required><br><br>
+<form id="entryForm" enctype="multipart/form-data">
+  <label for="name">Title:</label>
+  <input type="text" id="name" name="name" required>
 
-  <label for="image">Take or Upload a photo:</label><br>
-  <input type="file" id="image" name="image" accept="image/*" capture="environment"><br><br>
+  <label for="description">Description:</label>
+  <textarea id="description" name="description" rows="4" required></textarea>
+
+  <label for="owner">Your Name:</label>
+  <input type="text" id="owner" name="owner" required>
+
+  <label for="image">Take or Upload a photo:</label>
+  <input type="file" id="image" name="image" accept="image/*" capture="environment">
 
   <button type="submit">Submit Entry</button>
 </form>
 
 </div></div>
+
+
+<script>
+document.getElementById('entryForm').addEventListener('submit', function (e) {
+  e.preventDefault(); // prevent default submit
+
+  const formData = new FormData(this);
+
+  // Fire off background request
+  fetch('api/submit_entry', {
+    method: 'POST',
+    body: formData,
+  }).catch(err => {
+    // optionally notify the user if needed
+    console.error("Submission failed", err);
+  });
+
+  // Redirect immediately
+  // window.location.href = "/";
+
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 500);
+});
+</script>
+
+
 {% endblock %}
