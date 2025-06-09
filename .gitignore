@@ -1,6 +1,7 @@
 ## Project Specific
 media
 .secrets.toml
+config.toml
 
 ### Python ###
 __pycache__/
