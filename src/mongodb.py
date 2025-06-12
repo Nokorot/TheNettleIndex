@@ -2,6 +2,8 @@ import sys
 from typing import Optional
 
 import pymongo
+from pymongo.collation import Collation
+from pymongo.database import Collection, Database
 from pymongo.errors import ConfigurationError
 
 from .nettle_app import NettleApp
@@ -18,8 +20,8 @@ class MongoConnection:
         self.db_name = self.secrets.get("db_name")
 
         self.client: Optional[pymongo.MongoClient] = None
-        self.mongodb = None
-        self.entries_coln = None
+        self.mongodb: Optional[Database] = None
+        self.entries_coln: Optional[Collection] = None
 
     def connect(self):
         try:

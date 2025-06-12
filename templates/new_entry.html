@@ -27,36 +27,63 @@
   <input type="text" id="owner" name="owner" required>
 
   <label for="image">Take or Upload a photo:</label>
+  <div id="image-preview-container"></div>
   <input type="file" id="image" name="image" accept="image/*" capture="environment">
-
   <button type="submit">Submit Entry</button>
 </form>
 
 </div></div>
 
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
 
 <script>
+let resizedBlob = null;
+let originalFilename = null;
+
+// Resize image when selected and preview it
+document.getElementById('image').addEventListener('change', async function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  originalFilename = file.name;
+  resizedBlob = await resizeImage(file, 1024);
+
+  // Preview the resized image
+  const imgPreview = document.createElement('img');
+  imgPreview.src = URL.createObjectURL(resizedBlob);
+  imgPreview.style.maxWidth = '100%';
+  imgPreview.style.marginTop = '10px';
+
+
+  const container = document.getElementById('image-preview-container');
+  container.innerHTML = ''; // Clear previous preview
+  imgPreview.id = 'preview-image';
+  container.appendChild(imgPreview);
+});
+
+// Submit the form (with resized image)
 document.getElementById('entryForm').addEventListener('submit', function (e) {
-  e.preventDefault(); // prevent default submit
+  e.preventDefault();
 
-  const formData = new FormData(this);
+  const form = this;
+  const formData = new FormData(form);
 
-  // Fire off background request
-  fetch('api/submit_entry', {
+  // Replace uploaded image with resized version
+  if (resizedBlob) {
+    formData.delete('image');
+    formData.append('image', resizedBlob, originalFilename);
+  }
+
+  fetch('/api/submit_entry', {
     method: 'POST',
-    body: formData,
+    body: formData
+  }).then((e) => {
+    window.location.href = "/";
   }).catch(err => {
-    // optionally notify the user if needed
     console.error("Submission failed", err);
   });
-
-  // Redirect immediately
-  // window.location.href = "/";
-
-  setTimeout(() => {
-    window.location.href = "/";
-  }, 500);
 });
+
 </script>
 
 
