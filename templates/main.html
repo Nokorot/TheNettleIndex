@@ -9,13 +9,18 @@
 {% block body %}
 <div class="filter-container">
   <form method="get" action="/" class="filter-form">
-    <input type="text" name="search" placeholder="Search entries..." value="{{ request.args.get('search', '') }}" class="filter-input">
-    <select name="tags" multiple class="filter-select">
+    <div class="search-container">
+      <input type="text" name="search" placeholder="Search entries..." value="{{ request.args.get('search', '') }}" class="filter-input">
+      <button type="submit" class="filter-button">Search</button>
+    </div>
+    <div class="tag-filter-container">
       {% for tag in all_tags %}
-      <option value="{{ tag }}" {% if tag in selected_tags %}selected{% endif %}>{{ tag }}</option>
+      <span class="tag-filter {% if tag in selected_tags %}selected{% endif %}" data-tag="{{ tag }}">
+        {{ tag }}
+      </span>
       {% endfor %}
-    </select>
-    <button type="submit" class="filter-button">Filter</button>
+    </div>
+    <input type="hidden" name="tags" id="selected-tags" value="{{ selected_tags | join(',') }}">
   </form>
 </div>
 
@@ -60,4 +65,29 @@
   <a href="/?search={{ request.args.get('search', '') }}&page={{ page + 1 }}&tags={{ selected_tags | join(',') }}" class="pagination-link">Next</a>
   {% endif %}
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tagElements = document.querySelectorAll(".tag-filter");
+    const selectedTagsInput = document.getElementById("selected-tags");
+
+    tagElements.forEach(tagElement => {
+      tagElement.addEventListener("click", function () {
+        const tag = this.dataset.tag;
+        const selectedTags = selectedTagsInput.value.split(",").filter(t => t);
+
+        if (selectedTags.includes(tag)) {
+          // Remove tag from selected
+          this.classList.remove("selected");
+          selectedTagsInput.value = selectedTags.filter(t => t !== tag).join(",");
+        } else {
+          // Add tag to selected
+          this.classList.add("selected");
+          selectedTags.push(tag);
+          selectedTagsInput.value = selectedTags.join(",");
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

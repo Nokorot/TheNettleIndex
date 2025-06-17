@@ -18,13 +18,18 @@ def route(app: NettleApp):
     @flask_app.route("/")
     def home():
         search_query = request.args.get("search", "").lower()
-        selected_tags = request.args.getlist("tags")  # Tags selected for filtering
+        selected_tags = request.args.get("tags")  # Tags selected for filtering
         page = int(request.args.get("page", 1))  # Default to page 1
         entries_per_page = app.config.get("ENTRIES_PER_PAGE", 10)  # Default to 10 if not set in config
 
+        selected_tags = selected_tags.split(",") if selected_tags else []
+
         qfilter = {}
-        if selected_tags:
+        if selected_tags and len(selected_tags) > 0:
             qfilter["tags"] = {"$all": selected_tags}  # Match entries containing all selected tags
+
+
+        print(f"Query filter: {qfilter}")
 
         entries = []
         for c in coln.find(qfilter):
@@ -53,6 +58,7 @@ def route(app: NettleApp):
         tags_collection = app.mongo_cx.tags_coln
         all_tags = [tag.get("name") for tag in tags_collection.find()]
 
+        
         return render_template(
             "main.html",
             entries=paginated_entries,
