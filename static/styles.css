@@ -1,4 +1,3 @@
-
 /* This should remove the scroll-bar. At least in chrome */
 .element::-webkit-scrollbar {
     display: none;
@@ -576,4 +575,76 @@ input:checked + .slider:before {
   max-width: 150px;
   border-radius: 8px;
   object-fit: cover;
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+  gap: 10px;
+}
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-input,
+.filter-select,
+.filter-button {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+.filter-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.forum-container {
+  margin-top: 20px;
+}
+
+.entry-tags .tag {
+  background-color: #f0f0f0;
+  padding: 5px;
+  border-radius: 3px;
+  margin-right: 5px;
+  font-size: 0.9em;
+}
+
+.entry-image {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.pagination-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination-link {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.pagination-link:hover {
+  text-decoration: underline;
+}
+
+.pagination-info {
+  font-size: 1em;
 }

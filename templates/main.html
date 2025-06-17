@@ -4,15 +4,19 @@
 <title>The Nettle Index</title>
 {% endblock %} 
 
-{%block title%}The Nettle Index{%endblock title%}
+{% block title %}The Nettle Index{% endblock title %}
 
 {% block body %}
-<div style="display: flex; justify-content: center; align-items: center; margin: 20px;">
-  <form method="get" action="/" style="margin-right: 20px;">
-    <input type="text" name="search" placeholder="Search entries..." value="{{ request.args.get('search', '') }}" style="padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ccc;">
-    <button type="submit" style="padding: 10px; border-radius: 5px; background-color: #007bff; color: white; border: none;">Search</button>
+<div class="filter-container">
+  <form method="get" action="/" class="filter-form">
+    <input type="text" name="search" placeholder="Search entries..." value="{{ request.args.get('search', '') }}" class="filter-input">
+    <select name="tags" multiple class="filter-select">
+      {% for tag in all_tags %}
+      <option value="{{ tag }}" {% if tag in selected_tags %}selected{% endif %}>{{ tag }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="filter-button">Filter</button>
   </form>
-  <a href="{{ url_for('new_entry') }}" class="add-button" style="padding: 10px; border-radius: 5px; background-color: #28a745; color: white; text-decoration: none;">➕ Add New Entry</a>
 </div>
 
 <div class="forum-container">
@@ -32,13 +36,13 @@
         <div class="entry-tags">
           Tags:
           {% for tag in entry.tags %}
-          <span class="tag" style="background-color: #f0f0f0; padding: 5px; border-radius: 3px; margin-right: 5px;">{{ tag }}</span>
+          <span class="tag">{{ tag }}</span>
           {% endfor %}
         </div>
       </div>
       {% if entry.image_url %}
       <div class="entry-image">
-        <img src="{{ entry.image_url }}" alt="Image for {{ entry.name }}">
+        <img src="{{ entry.image_url }}" alt="Image for {{ entry.name }}" class="entry-image">
       </div>
       {% endif %}
     </div>
@@ -47,13 +51,13 @@
 </div>
 
 <!-- Pagination controls -->
-<div style="text-align: center; margin-top: 20px;">
+<div class="pagination-container">
   {% if page > 1 %}
-  <a href="/?search={{ request.args.get('search', '') }}&page={{ page - 1 }}" style="margin-right: 10px;">Previous</a>
+  <a href="/?search={{ request.args.get('search', '') }}&page={{ page - 1 }}&tags={{ selected_tags | join(',') }}" class="pagination-link">Previous</a>
   {% endif %}
-  <span>Page {{ page }} of {{ total_pages }}</span>
+  <span class="pagination-info">Page {{ page }} of {{ total_pages }}</span>
   {% if page < total_pages %}
-  <a href="/?search={{ request.args.get('search', '') }}&page={{ page + 1 }}" style="margin-left: 10px;">Next</a>
+  <a href="/?search={{ request.args.get('search', '') }}&page={{ page + 1 }}&tags={{ selected_tags | join(',') }}" class="pagination-link">Next</a>
   {% endif %}
 </div>
 {% endblock %}

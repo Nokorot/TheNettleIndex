@@ -18,30 +18,26 @@ def route(app: NettleApp):
     @flask_app.route("/")
     def home():
         search_query = request.args.get("search", "").lower()
+        selected_tags = request.args.getlist("tags")  # Tags selected for filtering
         page = int(request.args.get("page", 1))  # Default to page 1
         entries_per_page = app.config.get("ENTRIES_PER_PAGE", 10)  # Default to 10 if not set in config
 
         qfilter = {}
+        if selected_tags:
+            qfilter["tags"] = {"$all": selected_tags}  # Match entries containing all selected tags
+
         entries = []
-
         for c in coln.find(qfilter):
-            _id = c.get("_id")
-            str_id = str(_id)
-
-            version = c.get("version")
-            _ = version
-
             entry = {
-                "id": str_id,
+                "id": str(c.get("_id")),
                 "name": c.get("name"),
                 "description": c.get("description"),
                 "owner": c.get("owner"),
                 "image_url": c.get("icon_url"),
                 "time_added": c.get("added_timestamp"),
-                "tags": c.get("tags", []),  # Fetch tags from the database
+                "tags": c.get("tags", []),
             }
 
-            # Filter entries based on the search query
             if search_query and search_query not in entry["name"].lower() and search_query not in entry["description"].lower():
                 continue
 
@@ -53,11 +49,17 @@ def route(app: NettleApp):
         end = start + entries_per_page
         paginated_entries = entries[start:end]
 
+        # Fetch all tags for the filter dropdown
+        tags_collection = app.mongo_cx.tags_coln
+        all_tags = [tag.get("name") for tag in tags_collection.find()]
+
         return render_template(
             "main.html",
             entries=paginated_entries,
             page=page,
             total_pages=(total_entries + entries_per_page - 1) // entries_per_page,
+            all_tags=all_tags,
+            selected_tags=selected_tags,
         )
 
     @flask_app.route("/test", methods=["GET", "POST"])
