@@ -45,6 +45,9 @@ document.getElementById('image').addEventListener('change', async function (e) {
   const file = e.target.files[0];
   if (!file) return;
 
+  console.log("Image Changed");
+  
+
   originalFilename = file.name;
   resizedBlob = await resizeImage(file, 1024);
 
@@ -74,7 +77,7 @@ document.getElementById('entryForm').addEventListener('submit', function (e) {
     formData.append('image', resizedBlob, originalFilename);
   }
 
-  fetch('/api/submit_entry', {
+  fetch("{{ url_for('api_submit_entry') }}", {
     method: 'POST',
     body: formData
   }).then((e) => {

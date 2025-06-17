@@ -21,10 +21,10 @@ def route(app: NettleApp):
 
     @flask_app.route("/new_entry")
     def new_entry():
-        return render_template("new_entry.html")
+        return render_template("new_entry.html", app=app)
 
     @flask_app.route("/entry/<entry_id>", methods=["GET", "POST"])
-    def entry_detail(entry_id):
+    def edit_entry(entry_id):
         entry = entries_coln.find_one({"_id": ObjectId(entry_id)})
 
         if not entry:
@@ -32,7 +32,8 @@ def route(app: NettleApp):
 
         # Render template with entry data
         return render_template(
-            "entry_detail.html",
+            "edit_entry.html",
+            app=app,
             entry={
                 "_id": entry_id,
                 "name": entry.get("name"),
@@ -89,7 +90,8 @@ def route(app: NettleApp):
             old_image_url = entry.get("icon_url")
             if old_image_url:
                 print("Deleting old imgur image")
-                app.imgur.delete_image(old_image_url)
+                old_image_id = app.imgur.parse_image_url(old_image_url)
+                app.imgur.delete_image(old_image_id)
 
             name = data.get("name") or entry.get("name")
             print("Uploading new imgur image", icon_upload_path)
@@ -101,7 +103,7 @@ def route(app: NettleApp):
             {"$set": data},
         )
 
-        return redirect(url_for("entry_detail", entry_id=entry_id))
+        return redirect(url_for("edit_entry", entry_id=entry_id))
 
     @flask_app.route("/api/delete_entry", methods=["POST"])
     def delete_entry():
