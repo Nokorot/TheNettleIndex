@@ -8,10 +8,11 @@
 
 {% block body %}
 <div class="filter-container">
-  <form method="get" action="/" class="filter-form">
+  <form method="get" action="/" class="filter-form" id="filterForm">
     <div class="search-container">
       <input type="text" name="search" placeholder="Search entries..." value="{{ request.args.get('search', '') }}" class="filter-input">
       <button type="submit" class="filter-button">Search</button>
+      <a href="/new_entry" class="new-entry-button">+ New Entry</a>
     </div>
     <div class="tag-filter-container">
       {% for tag in all_tags %}
@@ -70,6 +71,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     const tagElements = document.querySelectorAll(".tag-filter");
     const selectedTagsInput = document.getElementById("selected-tags");
+    const filterForm = document.getElementById("filterForm");
 
     tagElements.forEach(tagElement => {
       tagElement.addEventListener("click", function () {
@@ -86,6 +88,9 @@
           selectedTags.push(tag);
           selectedTagsInput.value = selectedTags.join(",");
         }
+
+        // Submit the form dynamically
+        filterForm.submit();
       });
     });
   });

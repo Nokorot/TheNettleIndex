@@ -652,7 +652,7 @@ input:checked + .slider:before {
 .search-container {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
   margin-bottom: 10px;
 }
 
@@ -685,3 +685,20 @@ input:checked + .slider:before {
   color: white;
   border-color: #0056b3;
 }
+
+.new-entry-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.new-entry-button:hover {
+  background-color: #0056b3;
+}
+
+
