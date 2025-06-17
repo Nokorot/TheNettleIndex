@@ -22,6 +22,7 @@ class MongoConnection:
         self.client: Optional[pymongo.MongoClient] = None
         self.mongodb: Optional[Database] = None
         self.entries_coln: Optional[Collection] = None
+        self.tags_coln: Optional[Collection] = None
 
     def connect(self):
         try:
@@ -36,4 +37,12 @@ class MongoConnection:
             sys.exit(1)
 
         self.entries_coln = self.mongodb["entries"]
+        if self.entries_coln is None:
+            self.app.logger.ERROR("MongoDB entries collection is None")
+            exit(1)
+
         self.tags_coln = self.mongodb["tags"]
+
+        if self.tags_coln is None:
+            self.app.logger.ERROR("MongoDB tags collection is None")
+            exit(1)

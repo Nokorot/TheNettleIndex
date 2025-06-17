@@ -1,0 +1,81 @@
+<div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
+  <div>
+    <label for="existing_tags">Select Existing Tags:</label>
+    <select id="existing_tags" name="existing_tags" multiple style="width: 200px; height: 150px;">
+      {% for tag in existing_tags %}
+      {% if entry is undefined or tag not in entry.tags %}
+        <option value="{{ tag }}">{{ tag }}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="added_tags">Added Tags:</label>
+    <select id="added_tags" name="tags" multiple style="width: 200px; height: 150px;">
+      {% if entry is not undefined %}
+      {% for tag in entry.tags %}
+      <option value="{{ tag }}">{{ tag }}</option>
+      {% endfor %}
+      {% endif %}
+    </select>
+  </div>
+</div>
+
+<label for="new_tag">Add New Tag:</label>
+<input type="text" id="new_tag" name="new_tag" placeholder="Enter a new tag">
+<button type="button" id="add_new_tag_button">Add Tag</button><br><br>
+
+<script>
+document.getElementById('existing_tags').addEventListener('change', function (e) {
+  const selectedOptions = Array.from(e.target.selectedOptions);
+  const addedTags = document.getElementById('added_tags');
+
+  selectedOptions.forEach(option => {
+    const tag = option.value;
+
+    // Add the tag to the 'added_tags' list
+    const newOption = document.createElement('option');
+    newOption.value = tag;
+    newOption.textContent = tag;
+    addedTags.appendChild(newOption);
+
+    // Remove the tag from the 'existing_tags' list
+    option.remove();
+  });
+});
+
+document.getElementById('added_tags').addEventListener('change', function (e) {
+  const selectedOptions = Array.from(e.target.selectedOptions);
+  const existingTags = document.getElementById('existing_tags');
+
+  selectedOptions.forEach(option => {
+    const tag = option.value;
+
+    // Add the tag back to the 'existing_tags' list
+    const newOption = document.createElement('option');
+    newOption.value = tag;
+    newOption.textContent = tag;
+    existingTags.appendChild(newOption);
+
+    // Remove the tag from the 'added_tags' list
+    option.remove();
+  });
+});
+
+document.getElementById('add_new_tag_button').addEventListener('click', function () {
+  const newTagInput = document.getElementById('new_tag');
+  const newTag = newTagInput.value.trim();
+  const addedTags = document.getElementById('added_tags');
+
+  if (newTag) {
+    // Add the new tag to the 'added_tags' list
+    const newOption = document.createElement('option');
+    newOption.value = newTag;
+    newOption.textContent = newTag;
+    addedTags.appendChild(newOption);
+
+    // Clear the input field
+    newTagInput.value = '';
+  }
+});
+</script>

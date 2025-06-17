@@ -19,7 +19,6 @@
 </div>
 {% endif %}
 
-
 <form id="entryForm" enctype="multipart/form-data" 
   action="{{ url_for('api_update_entry') }}" method="post" enctype="multipart/form-data">
   <input type="text" name="_id" value="{{ entry._id }}" hidden>
@@ -28,6 +27,9 @@
 
   <label for="description">Description:</label><br>
   <textarea id="description" name="description" rows="4" required>{{ entry.description }}</textarea><br><br>
+
+  <!-- Include the tag management template -->
+  {% include 'tags.html' %}
 
   <label for="image">Change Photo:</label><br>
   <div id="image-preview-container"></div>
@@ -90,6 +92,11 @@ document.getElementById('entryForm').addEventListener('submit', function (e) {
     formData.delete('image');
     formData.append('image', resizedBlob, originalFilename);
   }
+
+  // Add all tags from 'added_tags' to the form data
+  const addedTags = Array.from(document.getElementById('added_tags').options).map(option => option.value);
+  formData.delete('tags'); // Clear existing tags field
+  addedTags.forEach(tag => formData.append('tags', tag));
 
   fetch("{{ url_for('api_update_entry') }}", {
     method: 'POST',

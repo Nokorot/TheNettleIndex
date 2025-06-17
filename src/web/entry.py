@@ -18,14 +18,9 @@ def route(app: NettleApp):
 
     assert app.mongo_cx.entries_coln is not None
     entries_coln: Collection = app.mongo_cx.entries_coln
-    if entries_coln is None:
-        app.logger.ERROR("MongoDB entries collection is None")
-        exit(1)
 
-    tags_collection = app.mongo_cx.tags_coln  # Ensure you have a tags collection
-    if tags_collection is None:
-        app.logger.ERROR("MongoDB tags collection is None")
-        exit(1)
+    assert app.mongo_cx.tags_coln is not None
+    tags_collection: Collection = app.mongo_cx.tags_coln
 
 
     ## Pages
@@ -34,7 +29,7 @@ def route(app: NettleApp):
     def new_entry():
         # Fetch all available tags for the dropdown
         tags = [tag.get("name") for tag in tags_collection.find()]
-        return render_template("new_entry.html", app=app, tags=tags)
+        return render_template("new_entry.html", app=app, existing_tags=tags)
 
     @flask_app.route("/entry/<entry_id>", methods=["GET", "POST"])
     def edit_entry(entry_id):
@@ -43,7 +38,11 @@ def route(app: NettleApp):
         if not entry:
             abort(404)
 
-        # Render template with entry data
+        # Fetch all existing tags
+        tags_collection = app.mongo_cx.tags_coln
+        existing_tags = [tag.get("name") for tag in tags_collection.find()]
+
+        # Render template with entry data and tags
         return render_template(
             "edit_entry.html",
             app=app,
@@ -54,7 +53,9 @@ def route(app: NettleApp):
                 "owner": entry.get("owner"),
                 "image_url": entry.get("icon_url"),
                 "time_added": entry.get("added_timestamp"),
+                "tags": entry.get("tags", []),
             },
+            existing_tags=existing_tags,
         )
 
     ## Api
@@ -103,15 +104,27 @@ def route(app: NettleApp):
         if not entry:
             abort(404)
 
+        # Get updated tags from the form
+        selected_tags = request.form.getlist("tags")  # Tags from the 'added_tags' dropdown
+        print("Selected tags:", selected_tags)
+
+        # Update entry data
         data = {
             "name": request.form.get("name"),
             "description": request.form.get("description"),
+            "tags": selected_tags,  # Update tags
         }
 
-        # Handle form submission: update name, description, image
-        image = request.files.get("image")
-        if image is not None:
-            icon_upload_path = upload_image(image)
+        # Handle image
+        image = request.form.get("image")
+        print("Image file:", image)
+        while image is not None:
+            icon_upload_path = upload_image(request.form.get("image"))
+
+            print("Icon upload path:", icon_upload_path)
+            if icon_upload_path is None:
+                app.logger.WARNING("Warning: There was no image uploaded")
+                break
 
             old_image_url = entry.get("icon_url")
             if old_image_url:
@@ -123,13 +136,20 @@ def route(app: NettleApp):
             print("Uploading new imgur image", icon_upload_path)
             imgur_image = app.imgur.upload_image(icon_upload_path, title=name)
             data["icon_url"] = imgur_image.link
+            break
 
-        entries_coln.update_one(
-            {"_id": entry.get("_id")},
-            {"$set": data},
-        )
 
-        return redirect(url_for("edit_entry", entry_id=entry_id))
+
+        # Update the entry in the database
+        entries_coln.update_one({"_id": ObjectId(entry_id)}, {"$set": data})
+
+        # Add new tags to the tags collection if they don't exist
+        tags_collection = app.mongo_cx.tags_coln
+        for tag in selected_tags:
+            if not tags_collection.find_one({"name": tag}):
+                tags_collection.insert_one({"name": tag})
+
+        return "Entry successfully updated", 204  # No Content
 
     @flask_app.route("/api/delete_entry", methods=["POST"])
     def delete_entry():

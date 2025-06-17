@@ -24,26 +24,8 @@
   <label for="owner">Your Name:</label>
   <input type="text" id="owner" name="owner" required>
 
-  <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
-    <div>
-      <label for="existing_tags">Select Existing Tags:</label>
-      <select id="existing_tags" name="existing_tags" multiple style="width: 200px; height: 150px;">
-        {% for tag in tags %}
-        <option value="{{ tag }}">{{ tag }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div>
-      <label for="added_tags">Added Tags:</label>
-      <select id="added_tags" name="tags" multiple style="width: 200px; height: 150px;">
-        <!-- Dynamically populated -->
-      </select>
-    </div>
-  </div>
-
-  <label for="new_tag">Add New Tag:</label>
-  <input type="text" id="new_tag" name="new_tag" placeholder="Enter a new tag">
-  <button type="button" id="add_new_tag_button">Add Tag</button><br><br>
+  <!-- Include the tag management template -->
+  {% include 'tags.html' %}
 
   <label for="image">Take or Upload a photo:</label>
   <div id="image-preview-container"></div>
@@ -76,62 +58,6 @@ document.getElementById('image').addEventListener('change', async function (e) {
   const container = document.getElementById('image-preview-container');
   container.innerHTML = ''; // Clear previous preview
   container.appendChild(imgPreview);
-});
-
-// Move selected tags from 'existing_tags' to 'added_tags'
-document.getElementById('existing_tags').addEventListener('change', function (e) {
-  const selectedOptions = Array.from(e.target.selectedOptions);
-  const addedTags = document.getElementById('added_tags');
-
-  selectedOptions.forEach(option => {
-    const tag = option.value;
-
-    // Add the tag to the 'added_tags' list
-    const newOption = document.createElement('option');
-    newOption.value = tag;
-    newOption.textContent = tag;
-    addedTags.appendChild(newOption);
-
-    // Remove the tag from the 'existing_tags' list
-    option.remove();
-  });
-});
-
-// Remove selected tags from 'added_tags' and add them back to 'existing_tags'
-document.getElementById('added_tags').addEventListener('change', function (e) {
-  const selectedOptions = Array.from(e.target.selectedOptions);
-  const existingTags = document.getElementById('existing_tags');
-
-  selectedOptions.forEach(option => {
-    const tag = option.value;
-
-    // Add the tag back to the 'existing_tags' list
-    const newOption = document.createElement('option');
-    newOption.value = tag;
-    newOption.textContent = tag;
-    existingTags.appendChild(newOption);
-
-    // Remove the tag from the 'added_tags' list
-    option.remove();
-  });
-});
-
-// Add new tag to 'added_tags'
-document.getElementById('add_new_tag_button').addEventListener('click', function () {
-  const newTagInput = document.getElementById('new_tag');
-  const newTag = newTagInput.value.trim();
-  const addedTags = document.getElementById('added_tags');
-
-  if (newTag) {
-    // Add the new tag to the 'added_tags' list
-    const newOption = document.createElement('option');
-    newOption.value = newTag;
-    newOption.textContent = newTag;
-    addedTags.appendChild(newOption);
-
-    // Clear the input field
-    newTagInput.value = '';
-  }
 });
 
 // Submit the form (with resized image)
