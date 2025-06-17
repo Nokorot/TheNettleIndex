@@ -8,12 +8,13 @@ from werkzeug.utils import secure_filename
 
 from src.nettle_app import NettleApp
 
-DB_ENTRY_VERSION = "0.2.0"
 ALLOWED_IMGAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "svg"]  # , "webp"
 
 
 def route(app: NettleApp):
     flask_app = app.flask_app
+
+    DB_ENTRY_VERSION = app.config["DB_ENTRY_VERSION"]
 
     assert app.mongo_cx.entries_coln is not None
     entries_coln: Collection = app.mongo_cx.entries_coln
@@ -49,6 +50,7 @@ def route(app: NettleApp):
     @flask_app.route("/api/submit_entry", methods=["POST"])
     def api_submit_entry():
         data = {
+            "version": DB_ENTRY_VERSION,
             "name": request.form["name"],
             "owner": request.form["owner"],
             "description": request.form["description"],
@@ -113,9 +115,10 @@ def route(app: NettleApp):
         if not entry:
             abort(404)
 
-        image_url = entry.get("icon_url")
-        image_id = app.imgur.parse_image_url(image_url)
-        app.imgur.delete_image(image_id)
+        icon_url = entry.get("icon_url")
+        if icon_url is not None:
+            image_id = app.imgur.parse_image_url(icon_url)
+            app.imgur.delete_image(image_id)
 
         entries_coln.delete_one({"_id": ObjectId(entry_id)})
         return redirect(url_for("home"))

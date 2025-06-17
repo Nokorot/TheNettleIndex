@@ -49,7 +49,7 @@ document.getElementById('image').addEventListener('change', async function (e) {
   
 
   originalFilename = file.name;
-  resizedBlob = await resizeImage(file, 1024);
+  resizedBlob = await resizeImage(file, {{ app.config.get("IMAGE_UPLOAD_SIZE") }});
 
   // Preview the resized image
   const imgPreview = document.createElement('img');

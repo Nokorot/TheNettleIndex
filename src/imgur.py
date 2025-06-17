@@ -7,6 +7,13 @@ from pyimgur import Image, Imgur  # type: ignore
 from src.nettle_app import NettleApp
 
 
+def imgur_parse_image_url(image_url: str) -> str:
+    path = urlparse(image_url).path
+    filename = os.path.basename(path)
+    image_id, _ = os.path.splitext(filename)
+    return image_id
+
+
 class MyImgur:
 
     def __init__(self, app: NettleApp):
@@ -23,13 +30,7 @@ class MyImgur:
         )
 
     def parse_image_url(self, image_url: str) -> str:
-        path = urlparse(image_url).path
-        filename = os.path.basename(path)
-
-        print(filename)
-
-        image_id, _ = os.path.splitext(filename)
-        return image_id
+        return imgur_parse_image_url(image_url)
 
     def delete_image(self, image_id: str):
         image = self.imgur.get_image(image_id)
