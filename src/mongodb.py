@@ -36,3 +36,4 @@ class MongoConnection:
             sys.exit(1)
 
         self.entries_coln = self.mongodb["entries"]
+        self.tags_coln = self.mongodb["tags"]

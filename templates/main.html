@@ -29,6 +29,12 @@
         <div class="entry-content">
           {{ entry.description }}
         </div>
+        <div class="entry-tags">
+          Tags:
+          {% for tag in entry.tags %}
+          <span class="tag" style="background-color: #f0f0f0; padding: 5px; border-radius: 3px; margin-right: 5px;">{{ tag }}</span>
+          {% endfor %}
+        </div>
       </div>
       {% if entry.image_url %}
       <div class="entry-image">

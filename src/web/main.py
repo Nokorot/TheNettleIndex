@@ -1,6 +1,7 @@
 import sys
 
-from flask import render_template, request  # type: ignore
+from datetime import datetime
+from flask import render_template, request, redirect  # type: ignore
 
 from .. import NettleApp
 
@@ -37,6 +38,7 @@ def route(app: NettleApp):
                 "owner": c.get("owner"),
                 "image_url": c.get("icon_url"),
                 "time_added": c.get("added_timestamp"),
+                "tags": c.get("tags", []),  # Fetch tags from the database
             }
 
             # Filter entries based on the search query
@@ -60,9 +62,17 @@ def route(app: NettleApp):
 
     @flask_app.route("/test", methods=["GET", "POST"])
     def test():
-        import datetime
+        return "Welcome! The time is {}".format(str(datetime.now()))
 
-        return "Welcome! The time is {}".format(str(datetime.datetime.now()))
+    @flask_app.route("/tags", methods=["GET"])
+    def get_tags():
+        tags_collection = app.mongo_cx.tags_coln  # Ensure you have a tags collection
+        if tags_collection is None:
+            app.logger.ERROR("MongoDB tags collection is None")
+            sys.exit(1)
+
+        tags = [tag.get("name") for tag in tags_collection.find()]
+        return {"tags": tags}
 
     # @flask_app.before_request
     # def load_logged_in_user():

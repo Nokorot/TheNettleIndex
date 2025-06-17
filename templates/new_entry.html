@@ -10,13 +10,11 @@
 
 <div class="formbox-container">
 
-<div class="form-box"</div>
+<div class="form-box">
 
 <h2>Add New Entry</h2>
 
-{#action="{{ url_for('submit_entry') }}" #}
-
-<form id="entryForm" enctype="multipart/form-data">
+<form id="entryForm" enctype="multipart/form-data" method="POST" action="{{ url_for('api_submit_entry') }}">
   <label for="name">Title:</label>
   <input type="text" id="name" name="name" required>
 
@@ -25,6 +23,16 @@
 
   <label for="owner">Your Name:</label>
   <input type="text" id="owner" name="owner" required>
+
+  <label for="tags">Select Existing Tags:</label>
+  <select id="tags" name="tags" multiple>
+    {% for tag in tags %}
+    <option value="{{ tag }}">{{ tag }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <label for="new_tags">Add New Tags (comma-separated):</label>
+  <input type="text" id="new_tags" name="new_tags" placeholder="e.g., tag1, tag2"><br><br>
 
   <label for="image">Take or Upload a photo:</label>
   <div id="image-preview-container"></div>
@@ -45,9 +53,6 @@ document.getElementById('image').addEventListener('change', async function (e) {
   const file = e.target.files[0];
   if (!file) return;
 
-  console.log("Image Changed");
-  
-
   originalFilename = file.name;
   resizedBlob = await resizeImage(file, {{ app.config.get("IMAGE_UPLOAD_SIZE") }});
 
@@ -57,11 +62,26 @@ document.getElementById('image').addEventListener('change', async function (e) {
   imgPreview.style.maxWidth = '100%';
   imgPreview.style.marginTop = '10px';
 
-
   const container = document.getElementById('image-preview-container');
   container.innerHTML = ''; // Clear previous preview
-  imgPreview.id = 'preview-image';
   container.appendChild(imgPreview);
+});
+
+// Add existing tags to the comma-separated list
+document.getElementById('tags').addEventListener('change', function (e) {
+  const selectedOptions = Array.from(e.target.selectedOptions);
+  const newTagsInput = document.getElementById('new_tags');
+  const currentTags = newTagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+
+  selectedOptions.forEach(option => {
+    const tag = option.value;
+    if (!currentTags.includes(tag)) {
+      currentTags.push(tag);
+      option.remove(); // Remove the tag from the dropdown
+    }
+  });
+
+  newTagsInput.value = currentTags.join(', ');
 });
 
 // Submit the form (with resized image)
@@ -80,14 +100,16 @@ document.getElementById('entryForm').addEventListener('submit', function (e) {
   fetch("{{ url_for('api_submit_entry') }}", {
     method: 'POST',
     body: formData
-  }).then((e) => {
-    window.location.href = "/";
+  }).then((response) => {
+    if (response.ok) {
+      window.location.href = "/";
+    } else {
+      console.error("Submission failed", response);
+    }
   }).catch(err => {
     console.error("Submission failed", err);
   });
 });
-
 </script>
-
 
 {% endblock %}

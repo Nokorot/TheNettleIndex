@@ -18,11 +18,23 @@ def route(app: NettleApp):
 
     assert app.mongo_cx.entries_coln is not None
     entries_coln: Collection = app.mongo_cx.entries_coln
+    if entries_coln is None:
+        app.logger.ERROR("MongoDB entries collection is None")
+        exit(1)
+
+    tags_collection = app.mongo_cx.tags_coln  # Ensure you have a tags collection
+    if tags_collection is None:
+        app.logger.ERROR("MongoDB tags collection is None")
+        exit(1)
+
+
     ## Pages
 
     @flask_app.route("/new_entry")
     def new_entry():
-        return render_template("new_entry.html", app=app)
+        # Fetch all available tags for the dropdown
+        tags = [tag.get("name") for tag in tags_collection.find()]
+        return render_template("new_entry.html", app=app, tags=tags)
 
     @flask_app.route("/entry/<entry_id>", methods=["GET", "POST"])
     def edit_entry(entry_id):
@@ -49,10 +61,17 @@ def route(app: NettleApp):
 
     @flask_app.route("/api/submit_entry", methods=["POST"])
     def api_submit_entry():
+        selected_tags = request.form.getlist("tags")
+        new_tags = request.form.get("new_tags", "").split(",")  # Get new tags as a comma-separated string
+
+        # Combine existing and new tags
+        all_tags = selected_tags + [tag.strip() for tag in new_tags if tag.strip()]
+
         data = {
             "version": DB_ENTRY_VERSION,
             "name": request.form["name"],
             "owner": request.form["owner"],
+            "tags": all_tags,
             "description": request.form["description"],
         }
 
@@ -67,8 +86,13 @@ def route(app: NettleApp):
             )
             data["icon_url"] = imgur_image.link
 
-        restult = entries_coln.insert_one(data)
-        _ = restult
+        # Save the new entry to the database
+        entries_coln.insert_one(data)
+
+        # Add new tags to the tags collection if they don't exist
+        for tag in all_tags:
+            if not tags_collection.find_one({"name": tag}):
+                tags_collection.insert_one({"name": tag})
 
         return "Entry successfully submitted", 204  # No Content
 
