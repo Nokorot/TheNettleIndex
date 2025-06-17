@@ -10,7 +10,7 @@ class NettleApp:
         from .mongodb import MongoConnection
 
         self.logger = logger = LoggerContext("")
-        self.config: Config = Config(logger, config_file, secrets_file)
+        self.config = Config(logger, config_file, secrets_file)
         self.flask_app = Flask("TheNettleApp")
 
         # The secret_key is used for session encryption

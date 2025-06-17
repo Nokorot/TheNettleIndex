@@ -1,10 +1,9 @@
 import os
 from datetime import datetime
-from typing import Optional
 
-from bson import ObjectId
+from bson import ObjectId  # type: ignore
 from flask import abort, redirect, render_template, request, url_for
-from pymongo.database import Collection
+from pymongo.database import Collection  # type: ignore
 from werkzeug.utils import secure_filename
 
 from src.nettle_app import NettleApp

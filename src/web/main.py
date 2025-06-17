@@ -1,8 +1,6 @@
-import os
 import sys
 
-from bson import ObjectId
-from flask import abort, redirect, render_template, request, url_for
+from flask import render_template  # type: ignore
 
 from .. import NettleApp
 

@@ -1,7 +1,7 @@
 import os
 from typing import Any, Optional
 
-from dotenv import load_dotenv
+from pytoml import TomlError
 
 from src.logging import LoggerContext
 
@@ -22,12 +22,12 @@ class Config:
 
     def __init__(self, logger: LoggerContext, cnf_file: str, secrets_file: str):
         def read_toml(fname):
-            import pytoml
+            import pytoml  # type: ignore
 
             with open(fname, "rb") as fin:
                 try:
                     return pytoml.load(fin)
-                except Exception as e:
+                except TomlError as e:
                     print("Toml Error: ", e)
                     exit(1)
 
@@ -55,9 +55,3 @@ class Config:
         if value is None:
             raise MissingConfigError(key)
         return value
-
-
-#
-# def construct_config(logger: LoggerContext) -> Config:
-#     load_dotenv(dotenv_path=".env")
-#     return Config(logger)

@@ -1,10 +1,10 @@
 import sys
 from typing import Optional
 
-import pymongo
-from pymongo.collation import Collation
-from pymongo.database import Collection, Database
-from pymongo.errors import ConfigurationError
+import pymongo  # type: ignore
+from pymongo.collation import Collation  # type: ignore
+from pymongo.database import Collection, Database  # type: ignore
+from pymongo.errors import ConfigurationError  # type: ignore
 
 from .nettle_app import NettleApp
 

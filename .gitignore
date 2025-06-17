@@ -3,11 +3,12 @@ media
 .secrets.toml
 config.toml
 
+*.ignore.*
+
 ### Python ###
 __pycache__/
 *.py[cod]
 *$py.class
-*.ignore.py
 
 # Installer logs
 pip-log.txt
@@ -16,3 +17,4 @@ pip-delete-this-directory.txt
 # Environments
 .venv
 .env 
+.vim.dml

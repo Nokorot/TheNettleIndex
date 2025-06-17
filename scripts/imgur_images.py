@@ -39,23 +39,21 @@ imgur = pyimgur.Imgur(
 )
 
 
-def imgur_upload_image(str_id: str, title: str) -> Optional[str]:
+def imgur_upload_image(image_path: str, title: str) -> Optional[str]:
 
-    logger.INFO(f"Uploading image for {str_id}")
+    logger.INFO(f"Uploading image {image_path}")
 
-    image_path = os.path.join(ICON_FOLDER, f"{str_id}.img")
     if not os.path.exists(image_path):
         logger.INFO(f"Image path {image_path} does not exist")
-
         return None
 
     from PIL import Image
 
     with open(image_path, "rb") as fp:
         im = Image.open(fp)
-        im.thumbnail((1000, 1000))
+        im.thumbnail((1024, 1024))
 
-        out_path = image_path + "_thumb.jpg"
+        out_path = image_path + "_thumb.png"
         im.save(out_path)
 
         image_path = out_path
@@ -71,48 +69,53 @@ def imgur_upload_image(str_id: str, title: str) -> Optional[str]:
     return image_url
 
 
-mdb_secrets: Optional[dict] = app_secrets.get("MongoDB")
-if mdb_secrets is None:
-    logger.ERROR("Missing MongoDB secrets")
-    exit(1)
-uri: str = mdb_secrets.get("URI")
-db_name = mdb_secrets.get("db_name")
+def _unused_():
+    mdb_secrets: Optional[dict] = app_secrets.get("MongoDB")
+    if mdb_secrets is None:
+        logger.ERROR("Missing MongoDB secrets")
+        exit(1)
+    uri: str = mdb_secrets.get("URI")
+    db_name = mdb_secrets.get("db_name")
 
-try:
-    client = pymongo.MongoClient(uri)
-    mongodb = client[db_name]
-    logger.INFO("MongoDB connected")
-except ConfigurationError:
-    logger.ERROR(
-        "An Invalid URI host error was received.\n"
-        "Is your Atlas host name correct in your connection string?"
-    )
-    exit(1)
+    try:
+        client = pymongo.MongoClient(uri)
+        mongodb = client[db_name]
+        logger.INFO("MongoDB connected")
+    except ConfigurationError:
+        logger.ERROR(
+            "An Invalid URI host error was received.\n"
+            "Is your Atlas host name correct in your connection string?"
+        )
+        exit(1)
 
-entries_coln = mongodb["entries"]
+    entries_coln = mongodb["entries"]
 
-DB_ENTRY_VERSION = "0.2.0"
+    DB_ENTRY_VERSION = "0.2.0"
 
-qfilter = {}
+    qfilter = {}
 
-for c in entries_coln.find(qfilter):
-    _id = c.get("_id")
-    str_id = str(_id)
+    for c in entries_coln.find(qfilter):
+        _id = c.get("_id")
+        str_id = str(_id)
 
-    version = c.get("version")
+        version = c.get("version")
 
-    print(_id, version)
+        print(_id, version)
 
-    if version is None:
+        if version is None:
 
-        try:
+            try:
 
-            new_url = imgur_upload_image(str_id, c.get("name") or "")
+                new_url = imgur_upload_image(str_id, c.get("name") or "")
 
-            if new_url is not None:
-                entries_coln.update_one(
-                    {"_id": _id},
-                    {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
-                )
-        except Exception:
-            pass
+                if new_url is not None:
+                    entries_coln.update_one(
+                        {"_id": _id},
+                        {"$set": {"icon_url": new_url, "version": DB_ENTRY_VERSION}},
+                    )
+            except Exception:
+                pass
+
+
+url = imgur_upload_image("media/example.png", "Example Img")
+print(url)

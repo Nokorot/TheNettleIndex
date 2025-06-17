@@ -7,9 +7,9 @@ LocType = Optional[inspect.FrameInfo]
 
 class LoggerContext:
     def __init__(self, name: str):
-        self.name = name
-        self.parent = None
-        self.context_str = "[%s]" % self.name
+        self.name: str = name
+        self.parent: Optional[LoggerContext] = None
+        self.context_str: str = "[%s]" % self.name
 
     def sub_contex(self, name: str):
         logger = LoggerContext(name)
