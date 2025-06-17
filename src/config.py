@@ -47,8 +47,11 @@ class Config:
             )
         return value
 
-    def get(self, key: str) -> Any:
-        return self.cnf.get(key)
+    def get(self, key: str, default=None) -> Any:
+        val = self.cnf.get(key)
+        if val is not None:
+            return val
+        return default
 
     def __getitem__(self, key):
         value = self.get(key)

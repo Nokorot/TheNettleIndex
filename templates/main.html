@@ -7,8 +7,12 @@
 {%block title%}The Nettle Index{%endblock title%}
 
 {% block body %}
-<div style="text-align: center; margin: 20px;">
-  <a href="{{ url_for('new_entry') }}" class="add-button">➕ Add New Entry</a>
+<div style="display: flex; justify-content: center; align-items: center; margin: 20px;">
+  <form method="get" action="/" style="margin-right: 20px;">
+    <input type="text" name="search" placeholder="Search entries..." value="{{ request.args.get('search', '') }}" style="padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ccc;">
+    <button type="submit" style="padding: 10px; border-radius: 5px; background-color: #007bff; color: white; border: none;">Search</button>
+  </form>
+  <a href="{{ url_for('new_entry') }}" class="add-button" style="padding: 10px; border-radius: 5px; background-color: #28a745; color: white; text-decoration: none;">➕ Add New Entry</a>
 </div>
 
 <div class="forum-container">
@@ -36,4 +40,14 @@
   {% endfor %}
 </div>
 
+<!-- Pagination controls -->
+<div style="text-align: center; margin-top: 20px;">
+  {% if page > 1 %}
+  <a href="/?search={{ request.args.get('search', '') }}&page={{ page - 1 }}" style="margin-right: 10px;">Previous</a>
+  {% endif %}
+  <span>Page {{ page }} of {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a href="/?search={{ request.args.get('search', '') }}&page={{ page + 1 }}" style="margin-left: 10px;">Next</a>
+  {% endif %}
+</div>
 {% endblock %}

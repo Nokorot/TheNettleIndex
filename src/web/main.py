@@ -1,6 +1,6 @@
 import sys
 
-from flask import render_template  # type: ignore
+from flask import render_template, request  # type: ignore
 
 from .. import NettleApp
 
@@ -16,6 +16,10 @@ def route(app: NettleApp):
 
     @flask_app.route("/")
     def home():
+        search_query = request.args.get("search", "").lower()
+        page = int(request.args.get("page", 1))  # Default to page 1
+        entries_per_page = app.config.get("ENTRIES_PER_PAGE", 10)  # Default to 10 if not set in config
+
         qfilter = {}
         entries = []
 
@@ -26,18 +30,33 @@ def route(app: NettleApp):
             version = c.get("version")
             _ = version
 
-            entries.append(
-                {
-                    "id": str_id,
-                    "name": c.get("name"),
-                    "description": c.get("description"),
-                    "owner": c.get("owner"),
-                    "image_url": c.get("icon_url"),
-                    "time_added": c.get("added_timestamp"),
-                }
-            )
+            entry = {
+                "id": str_id,
+                "name": c.get("name"),
+                "description": c.get("description"),
+                "owner": c.get("owner"),
+                "image_url": c.get("icon_url"),
+                "time_added": c.get("added_timestamp"),
+            }
 
-        return render_template("main.html", entries=entries)
+            # Filter entries based on the search query
+            if search_query and search_query not in entry["name"].lower() and search_query not in entry["description"].lower():
+                continue
+
+            entries.append(entry)
+
+        # Pagination logic
+        total_entries = len(entries)
+        start = (page - 1) * entries_per_page
+        end = start + entries_per_page
+        paginated_entries = entries[start:end]
+
+        return render_template(
+            "main.html",
+            entries=paginated_entries,
+            page=page,
+            total_pages=(total_entries + entries_per_page - 1) // entries_per_page,
+        )
 
     @flask_app.route("/test", methods=["GET", "POST"])
     def test():
