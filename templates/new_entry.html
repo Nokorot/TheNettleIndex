@@ -24,15 +24,26 @@
   <label for="owner">Your Name:</label>
   <input type="text" id="owner" name="owner" required>
 
-  <label for="tags">Select Existing Tags:</label>
-  <select id="tags" name="tags" multiple>
-    {% for tag in tags %}
-    <option value="{{ tag }}">{{ tag }}</option>
-    {% endfor %}
-  </select><br><br>
+  <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
+    <div>
+      <label for="existing_tags">Select Existing Tags:</label>
+      <select id="existing_tags" name="existing_tags" multiple style="width: 200px; height: 150px;">
+        {% for tag in tags %}
+        <option value="{{ tag }}">{{ tag }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="added_tags">Added Tags:</label>
+      <select id="added_tags" name="tags" multiple style="width: 200px; height: 150px;">
+        <!-- Dynamically populated -->
+      </select>
+    </div>
+  </div>
 
-  <label for="new_tags">Add New Tags (comma-separated):</label>
-  <input type="text" id="new_tags" name="new_tags" placeholder="e.g., tag1, tag2"><br><br>
+  <label for="new_tag">Add New Tag:</label>
+  <input type="text" id="new_tag" name="new_tag" placeholder="Enter a new tag">
+  <button type="button" id="add_new_tag_button">Add Tag</button><br><br>
 
   <label for="image">Take or Upload a photo:</label>
   <div id="image-preview-container"></div>
@@ -67,21 +78,60 @@ document.getElementById('image').addEventListener('change', async function (e) {
   container.appendChild(imgPreview);
 });
 
-// Add existing tags to the comma-separated list
-document.getElementById('tags').addEventListener('change', function (e) {
+// Move selected tags from 'existing_tags' to 'added_tags'
+document.getElementById('existing_tags').addEventListener('change', function (e) {
   const selectedOptions = Array.from(e.target.selectedOptions);
-  const newTagsInput = document.getElementById('new_tags');
-  const currentTags = newTagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+  const addedTags = document.getElementById('added_tags');
 
   selectedOptions.forEach(option => {
     const tag = option.value;
-    if (!currentTags.includes(tag)) {
-      currentTags.push(tag);
-      option.remove(); // Remove the tag from the dropdown
-    }
-  });
 
-  newTagsInput.value = currentTags.join(', ');
+    // Add the tag to the 'added_tags' list
+    const newOption = document.createElement('option');
+    newOption.value = tag;
+    newOption.textContent = tag;
+    addedTags.appendChild(newOption);
+
+    // Remove the tag from the 'existing_tags' list
+    option.remove();
+  });
+});
+
+// Remove selected tags from 'added_tags' and add them back to 'existing_tags'
+document.getElementById('added_tags').addEventListener('change', function (e) {
+  const selectedOptions = Array.from(e.target.selectedOptions);
+  const existingTags = document.getElementById('existing_tags');
+
+  selectedOptions.forEach(option => {
+    const tag = option.value;
+
+    // Add the tag back to the 'existing_tags' list
+    const newOption = document.createElement('option');
+    newOption.value = tag;
+    newOption.textContent = tag;
+    existingTags.appendChild(newOption);
+
+    // Remove the tag from the 'added_tags' list
+    option.remove();
+  });
+});
+
+// Add new tag to 'added_tags'
+document.getElementById('add_new_tag_button').addEventListener('click', function () {
+  const newTagInput = document.getElementById('new_tag');
+  const newTag = newTagInput.value.trim();
+  const addedTags = document.getElementById('added_tags');
+
+  if (newTag) {
+    // Add the new tag to the 'added_tags' list
+    const newOption = document.createElement('option');
+    newOption.value = newTag;
+    newOption.textContent = newTag;
+    addedTags.appendChild(newOption);
+
+    // Clear the input field
+    newTagInput.value = '';
+  }
 });
 
 // Submit the form (with resized image)
@@ -96,6 +146,11 @@ document.getElementById('entryForm').addEventListener('submit', function (e) {
     formData.delete('image');
     formData.append('image', resizedBlob, originalFilename);
   }
+
+  // Add all tags from 'added_tags' to the form data
+  const addedTags = Array.from(document.getElementById('added_tags').options).map(option => option.value);
+  formData.delete('tags'); // Clear existing tags field
+  addedTags.forEach(tag => formData.append('tags', tag));
 
   fetch("{{ url_for('api_submit_entry') }}", {
     method: 'POST',
