@@ -37,13 +37,7 @@
           Posted by <strong>{{ entry.owner }}</strong> on {{ entry.time_added | pretty_time }}
         </div>
         <div class="entry-content">
-          {{ entry.description }}
-        </div>
-        <div class="entry-tags">
-          Tags:
-          {% for tag in entry.tags %}
-          <span class="tag">{{ tag }}</span>
-          {% endfor %}
+          {{ entry.description | truncate(150) }}
         </div>
       </div>
       {% if entry.image_url %}
@@ -51,6 +45,12 @@
         <img src="{{ entry.image_url }}" alt="Image for {{ entry.name }}" class="entry-image">
       </div>
       {% endif %}
+    </div>
+    <div class="entry-tags">
+      Tags:
+      {% for tag in entry.tags %}
+      <span class="tag">{{ tag }}</span>
+      {% endfor %}
     </div>
   </div>
   {% endfor %}
